@@ -3,7 +3,7 @@
  * Implementation of hook_perm()
  */
 function fail2ban_perm() {
-  return array('administer fail2ban');
+  return array('administer fail2ban', 'submit addresses to fail2ban');
 }
 
 /**
@@ -29,14 +29,16 @@ function fail2ban_menu() {
  * @see fail2ban_comment_admin_overview_submit()
  */
 function fail2ban_form_comment_admin_overview_alter(&$form, $form_state) {
-  module_load_include('inc', 'fail2ban', 'fail2ban.admin');
-  // Add copies of the existing options, with the firewall options appended.
-  $form['options']['fail2ban'] = array(
-    '#type' => 'checkbox',
-    '#prefix' => '<br />',
-    '#title' => 'Firewall originating IP address',
-  );
-  $form['#submit'][] = 'fail2ban_comment_admin_overview_submit';
+  if (user_access('submit addresses to fail2ban')) {
+    module_load_include('inc', 'fail2ban', 'fail2ban.admin');
+    // Add copies of the existing options, with the firewall options appended.
+    $form['options']['fail2ban'] = array(
+      '#type' => 'checkbox',
+      '#prefix' => '<br />',
+      '#title' => 'Firewall originating IP address',
+    );
+    $form['#submit'][] = 'fail2ban_comment_admin_overview_submit';
+  }
 }
 
 /**
