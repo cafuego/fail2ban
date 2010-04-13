@@ -1,0 +1,7 @@
+<?php
+/**
+ * Implementation of hook_uninstall() for cleanup.
+ */
+function fail2ban_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'fail2ban%'");
+}
