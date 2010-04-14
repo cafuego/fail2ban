@@ -92,7 +92,7 @@ function fail2ban_syslog($address) {
   //
   $options = 0;
   foreach (variable_get('fail2ban_options', array(LOG_ODELAY)) as $option) {
-    $options = $options |  $option;
+    $options = $options | $option;
   }
 
   // Get the facility.
@@ -103,7 +103,7 @@ function fail2ban_syslog($address) {
   //
   $priority = 0;
   foreach (variable_get('fail2ban_priority', array(LOG_NOTICE)) as $option) {
-    $priority = $priority |  $option;
+    $priority = $priority | $option;
   }
 
   // Get the log string.
@@ -121,6 +121,9 @@ function fail2ban_syslog($address) {
   if (syslog($priority, $message) == FALSE) {
     watchdog('fail2ban', t('Cannot write message to the syslog daemon'), NULL, WATCHDOG_ERROR);
     drupal_set_message(t('Cannot write message to the syslog daemon'), 'error');
+  }
+  else {
+    drupal_set_message(t('The address !address has been submitted to the firewall', array('!address' => $address)));
   }
 
   if (closelog() == FALSE) {
