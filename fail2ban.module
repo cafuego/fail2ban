@@ -146,7 +146,7 @@ function fail2ban_whitelist($address) {
 
   // Load and split the list.
   //
-  $whitelist = variable_get('fail2ban_whitelist', '127.0.0.0/8');
+  $whitelist = variable_get('fail2ban_whitelist', "127.0.0.0/8\n" . ip_address());
   $list = split("\n", $whitelist);
 
   // Iterate.

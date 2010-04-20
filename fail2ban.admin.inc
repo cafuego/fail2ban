@@ -12,8 +12,8 @@ function fail2ban_admin_settings() {
   $form['fail2ban_whitelist'] = array(
     '#title' => 'Address Whitelist',
     '#type' => 'textarea',
-    '#default_value' => variable_get('fail2ban_whitelist', '127.0.0.0/8'),
-    '#description' => t('Add any IP addresses or netmasks that should be whitelisted, one per line.'),
+    '#default_value' => variable_get('fail2ban_whitelist', "127.0.0.0/8\n" . ip_address() ),
+    '#description' => t('Add any IP addresses or netmasks that should be whitelisted, one per line. It is a <em>really</em> good idea to add your own IP address or network to this field.'),
   );
 
   $form['fail2ban_logopt'] = array(
