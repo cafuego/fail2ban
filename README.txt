@@ -15,8 +15,11 @@ your /etc/fail2ban/jail.conf and a filter to add to /etc/fail2ban/filter.d
 
 These are pre-configured to firewall any matching addresses for 1 week.
 
-Both the system utility and this module are pre-configured with localhost
-whitelisted.
+The filter is disabled by default in jail.conf.
+
+The system utility and this module are pre-configured with localhost
+whitelisted. The module also automatically whitelists the IP address of the
+administrator who enabled it on the site.
 
 
 == Installation ==
