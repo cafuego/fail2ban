@@ -1,16 +1,26 @@
 <?php
 /**
- * Implementation of hook_perm()
+ * Implementation of hook_permission()
  */
-function fail2ban_perm() {
-  return array('administer fail2ban', 'submit addresses to fail2ban');
+function fail2ban_permission() {
+  return array(
+    'administer fail2ban' => array(
+      'title' => t('Administer Fail2Ban'),
+      'description' => t('Configure fail2ban module settings.'),
+    ),
+    'submit addresses to fail2ban' => array(
+      'title' => t('Submit Addresses'),
+      'description' => t('Submit IP addresses to the fail2ban firewall utility.'),
+      'restrict access' => TRUE,
+    ),
+  );
 }
 
 /**
  * Implementation of hook_menu()
  */
 function fail2ban_menu() {
-  $items['admin/settings/fail2ban'] = array(
+  $items['admin/config/people/fail2ban'] = array(
     'title' => 'Fail2ban',
     'description' => 'Fail2ban is a system utility that allows you to automatically add firewall entries.',
     'page callback' => 'drupal_get_form',
@@ -56,7 +66,7 @@ function fail2ban_comment_admin_overview_submit($form, &$form_state) {
     }
     foreach ($form_state['values']['comments'] as $cid => $value) {
       if ($value) {
-        if ($comment = _comment_load($cid)) {
+        if ($comment = comment_load($cid)) {
           if ($operation == 'unpublish' || $operation == 'delete') {
             fail2ban_syslog($comment->hostname);
           }
@@ -84,35 +94,30 @@ function fail2ban_syslog($address) {
     return;
   }
 
-  // Get the log identifier
-  //
-  $identifier = variable_get('fail2ban_identifier', 'drupal');
+  // Load all settings.
+  $settings = variable_get('fail2ban', fail2ban_defaults());
 
   // Turn on all the right log options.
   //
   $options = 0;
-  foreach (variable_get('fail2ban_options', array(LOG_ODELAY)) as $option) {
+  foreach ($settings['logopt']['options'] as $option) {
     $options = $options | $option;
   }
-
-  // Get the facility.
-  //
-  $facility = variable_get('fail2ban_facility', LOG_USER);
 
   // Get the priority.
   //
   $priority = 0;
-  foreach (variable_get('fail2ban_priority', array(LOG_NOTICE)) as $option) {
+  foreach ($settings['logopt']['priority'] as $option) {
     $priority = $priority | $option;
   }
 
   // Get the log string.
   //
-  $message = t(variable_get('fail2ban_logstring', 'Submitting address [!address] to the firewall'), array('!address' => $address));
+  $message = t($settings['logstring'], array('!address' => $address));
 
   // Open the log stream.
   //
-  if (openlog($identifier, $options, $facility) == FALSE) {
+  if (openlog($settings['identifier'], $options, $settings['logopt']['facility']) == FALSE) {
     watchdog('fail2ban', t('Unable to connect to the syslog daemon'), NULL, WATCHDOG_ERROR);
     drupal_set_message(t('Unable to connect to the syslog daemon'), 'error');
     return;
@@ -146,17 +151,17 @@ function fail2ban_whitelist($address) {
 
   // Load and split the list.
   //
-  $whitelist = variable_get('fail2ban_whitelist', "127.0.0.0/8\n" . ip_address());
-  $list = split("\n", $whitelist);
+  $settings = variable_get('fail2ban', fail2ban_defaults());
+  $list = preg_split("/[\s,]+/", $settings['whitelist'] . "\n" . ip_address());
 
   // Iterate.
   //
   foreach ($list as $entry) {
-    $network = split('/', trim($entry));
+    $network = preg_split("/\//", trim($entry));
 
     // Check if we're dealing with a single address.
     //
-    if (!$network[1] || empty($network[1])) {
+    if (count($network) == 1 || empty($network[1])) {
       if ($address == $network[0]) {
         return TRUE;
       }
@@ -183,4 +188,20 @@ function fail2ban_ip_in_network($ip, $net_addr, $net_mask){
   $ip_binary_string = sprintf("%032b",ip2long($ip));
   $net_binary_string = sprintf("%032b",ip2long($net_addr));
   return (substr_compare($ip_binary_string, $net_binary_string, 0, $net_mask) === 0);
+}
+
+/**
+ * Assemble an array of default settings.
+ */
+function fail2ban_defaults() {
+  return array(
+    'logstring' => 'Submitting address [!address] to the firewall',
+    'whitelist' => "127.0.0.0/8\n" . ip_address(),
+    'logopt' => array(
+      'identifier' => 'drupal',
+      'options' =>  array(LOG_ODELAY),
+      'facility' => LOG_USER,
+      'priority' => array(LOG_NOTICE),
+    ),
+  );
 }

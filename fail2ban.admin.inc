@@ -2,21 +2,25 @@
 function fail2ban_admin_settings() {
   $form = array();
 
-  $form['fail2ban_logstring'] = array(
+  $settings = variable_get('fail2ban', fail2ban_defaults());
+
+  $form['fail2ban'] = array('#tree' => TRUE);
+
+  $form['fail2ban']['logstring'] = array(
     '#title' => 'Log String',
     '#type' => 'textfield',
-    '#default_value' => variable_get('fail2ban_logstring', 'Submitting address [!address] to the firewall'),
+    '#default_value' => $settings['logstring'],
     '#description' => t('Enter the log message that the fail2ban module should write to syslog. Your fail2ban utility should be configured to look and act upon a message in this format. The originating IP address is inserted via the !address placeholder.'),
   );
 
-  $form['fail2ban_whitelist'] = array(
+  $form['fail2ban']['whitelist'] = array(
     '#title' => 'Address Whitelist',
     '#type' => 'textarea',
-    '#default_value' => variable_get('fail2ban_whitelist', "127.0.0.0/8\n" . ip_address() ),
+    '#default_value' => $settings['whitelist'],
     '#description' => t('Add any IP addresses or netmasks that should be whitelisted, one per line. It is a <em>really</em> good idea to add your own IP address or network to this field.'),
   );
 
-  $form['fail2ban_logopt'] = array(
+  $form['fail2ban']['logopt'] = array(
     '#type' => 'fieldset',
     '#title' => 'Logging Options',
     '#description' => t('Set various syslog() options'),
@@ -24,10 +28,10 @@ function fail2ban_admin_settings() {
     '#collapsed' => TRUE,
   );
 
-  $form['fail2ban_logopt']['fail2ban_identifier'] = array(
+  $form['fail2ban']['logopt']['identifier'] = array(
     '#title' => 'Identifier',
     '#type' => 'textfield',
-    '#default_value' => variable_get('fail2ban_identifier', 'drupal'),
+    '#default_value' => $settings['logopt']['identifier'],
     '#description' => t('Specify the identifier to use for the syslog message.'),
   );
 
@@ -38,11 +42,11 @@ function fail2ban_admin_settings() {
     LOG_PERROR => 'LOG_PERROR: print log message also to standard error',
     LOG_PID => 'LOG_PID: include PID with each message',
   );
-  $form['fail2ban_logopt']['fail2ban_options'] = array(
+  $form['fail2ban']['logopt']['options'] = array(
     '#title' => 'Options',
     '#type' => 'checkboxes',
     '#options' => $options,
-    '#default_value' => variable_get('fail2ban_options', array(LOG_ODELAY)),
+    '#default_value' => $settings['logopt']['options'],
     '#description' => t('Set logging options to use for the syslog message.'),
   );
 
@@ -85,11 +89,11 @@ function fail2ban_admin_settings() {
     );
   }
 
-  $form['fail2ban_logopt']['fail2ban_facility'] = array(
+  $form['fail2ban']['logopt']['facility'] = array(
     '#title' => 'Facility',
     '#type' => 'select',
     '#options' => $facilities,
-    '#default_value' => variable_get('fail2ban_facility', LOG_USER),
+    '#default_value' => $settings['logopt']['facility'],
     '#description' => t('Select the facility that should used for syslog message written by the fail2ban module. This can help you filter your system logs.'),
   );
 
@@ -103,11 +107,11 @@ function fail2ban_admin_settings() {
     LOG_INFO => 'LOG_INFO',
     LOG_DEBUG => 'LOG_DEBUG'
   );
-  $form['fail2ban_logopt']['fail2ban_priority'] = array(
+  $form['fail2ban']['logopt']['priority'] = array(
     '#title' => 'Priority',
     '#type' => 'checkboxes',
     '#options' => $priorities,
-    '#default_value' => variable_get('fail2ban_priority', array(LOG_NOTICE)),
+    '#default_value' => $settings['logopt']['priority'],
     '#description' => t('Select all priorities that should be assigned to the syslog message written by the fail2ban module. This can help you filter your system logs.'),
   );
 

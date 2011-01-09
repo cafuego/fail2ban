@@ -30,7 +30,7 @@ page.
 
 == Configuration ==
 
-Browse to http://localhost/?q=admin/settings/fail2ban to change
+Browse to http://localhost/?q=admin/config/people/fail2ban to change
 fail2ban settings.
 
 You will see a new checkbox appear on the comments administration page.

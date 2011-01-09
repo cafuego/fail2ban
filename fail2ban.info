@@ -1,5 +1,5 @@
 name = Fail2Ban
 description = This module writes syslog entries that can be interpreted by the fail2ban system utility.
-core = 6.x
+core = 7.x
 
 dependencies[] = comment
