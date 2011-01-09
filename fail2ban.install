@@ -11,7 +11,7 @@ function fail2ban_uninstall() {
  *
  * Migrate the module settings into a single array.
  */
-function fail2ban_update_7001() {
+function fail2ban_update_7100() {
 
   // Create a new settings array.
   $settings = array(
