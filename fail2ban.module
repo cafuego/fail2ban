@@ -111,20 +111,20 @@ function fail2ban_syslog($address) {
     $priority = $priority | $option;
   }
 
-  // Get the log string.
+  // Get the log string and replace the placeholder.
   //
-  $message = t($settings['logstring'], array('!address' => $address));
+  $message = strtr($settings['logstring'], array('!address' => $address));
 
   // Open the log stream.
   //
   if (openlog($settings['identifier'], $options, $settings['logopt']['facility']) == FALSE) {
-    watchdog('fail2ban', t('Unable to connect to the syslog daemon'), NULL, WATCHDOG_ERROR);
+    watchdog('fail2ban', 'Unable to connect to the syslog daemon', NULL, WATCHDOG_ERROR);
     drupal_set_message(t('Unable to connect to the syslog daemon'), 'error');
     return;
   }
 
   if (syslog($priority, $message) == FALSE) {
-    watchdog('fail2ban', t('Cannot write message to the syslog daemon'), NULL, WATCHDOG_ERROR);
+    watchdog('fail2ban', 'Cannot write message to the syslog daemon', NULL, WATCHDOG_ERROR);
     drupal_set_message(t('Cannot write message to the syslog daemon'), 'error');
   }
   else {
@@ -132,7 +132,7 @@ function fail2ban_syslog($address) {
   }
 
   if (closelog() == FALSE) {
-    watchdog('fail2ban', t('Cannot close connection to the syslog daemon'), NULL, WATCHDOG_ERROR);
+    watchdog('fail2ban', 'Cannot close connection to the syslog daemon', NULL, WATCHDOG_ERROR);
   }
 }
 
